@@ -87,12 +87,14 @@ public class HomeController {
 				model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
 	        	url="Autentication";//Nos vamos al jsp Autentication
 	        			
-	 }
-		
+	 }else { 
+		 respuestaServidor="400 ERROR";
+		model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
+    	url="Autentication";//
+	 }	
 		}	
 	    	
 	      
-		logger.info(" Respuesta "+respuestaServidor); //Informamos del suceso.
 	
 
 		
