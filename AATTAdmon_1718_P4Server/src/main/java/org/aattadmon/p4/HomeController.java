@@ -32,11 +32,13 @@ public class HomeController {
 	//Inyectará, como una instancia de dao, un bean de una clase que implemente el interfaz DAOUsuariosInterfaz
 	@Autowired
 		private DAOUsuarioInterface dao;
+	
 		
 	
 		 @RequestMapping(value="/autenticar", method = {RequestMethod.POST,RequestMethod.GET})
 		    public String Login(@RequestBody Usuario user, HttpServletRequest request,Model model) {
 		    String respuestaServidor=null;
+		    String response=null;
 		 //URL 
 	     String url="";
 	     String usu=user.getNick();	
@@ -47,7 +49,7 @@ public class HomeController {
 	    String clavepublicaString=Base64.getDecoder().decode(clavepublica).toString();
 	     
 	     String hashrec=user.getHashB64();
-//Obtenemos la clave secreta de BBDD e funcion del nick y dni
+	     //Obtenemos la clave secreta de BBDD e funcion del nick y dni
 	     if(dao.buscaUsuario(usu,dni) !=null ){
 	    	 String clavesecreta=dao.obtenerclave(usu, dni);
 	    	 
@@ -73,6 +75,7 @@ public class HomeController {
 	         if(hashrec==null || !hashrec.equals(hashserv) ){
 	 			
 	 			respuestaServidor="401 UNAUTHORIZED";	
+	 			response="Usuario no tiene acceso";//Mensage
 	 			url="Autentication";//Nos vamos al jsp Autentication
 	 			model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
 	 		}else
@@ -81,13 +84,16 @@ public class HomeController {
 	 	        	
 	 				respuestaServidor="200 OK";
 	 				model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
+	 				response="Usuario autenticado con exito";//Mensage
 	 	        	url="Autentication";//Nos vamos al jsp Autentication	 
 	     }
 	    else { 
-		 respuestaServidor="400 ERROR";
+		 respuestaServidor="400 BAD REQUEST";
 		model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-    	url="Autentication";//
+    	url="Autentication";
+    	response="Usuario y dni no registrados en BBDD ";//Mensage
 	 }	
+	    // logger.info(response+" Respuesta "+respuestaServidor); //Informamos del suceso.
 			
 	    	
 	      
