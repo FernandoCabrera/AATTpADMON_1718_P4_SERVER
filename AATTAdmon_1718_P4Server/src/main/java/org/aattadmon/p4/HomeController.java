@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,25 +34,22 @@ public class HomeController {
 		private DAOUsuarioInterface dao;
 		
 	
-		 @RequestMapping(value="/autenticar}", method = {RequestMethod.POST,RequestMethod.GET})
-		    public String Login(@RequestParam ("hash") String hash, HttpServletRequest request,Model model) {
-		      
-	String respuestaServidor=null;
-	
+		 @RequestMapping(value="/autenticar", method = {RequestMethod.POST,RequestMethod.GET})
+		    public String Login(@RequestBody Usuario user, HttpServletRequest request,Model model) {
+		    String respuestaServidor=null;
 		 //URL 
 	     String url="";
-		//Variables donde vamos a guardar los atributos introducidos en la url
-		String usu,dni,clavepublica,fecha,firma;	
-		
-		
-		usu = request.getParameter("user");
-	    dni = request.getParameter("dni"); 
-	    fecha = request.getParameter("fecha");
-	    clavepublica = request.getParameter("clave"); 
-	    firma = request.getParameter("firma"); 
+	     String usu=user.getNick();	
+	     String dni=user.getDni();
+	     String fecha=user.getFechaString();
+	     String clavepublica=user.getClavePublicaB64();
+	     //Pasar clave publica a String 
+	    // String clavepublicaString=Base64.getDecoder().decode(clavepublica.);
+	     String hashrec=user.getHashB64();
+
 	    
 	    //Hacemos el hash
-	    String hashobtenido=usu+dni+fecha+clavepublica+firma;
+	    String hashobtenido=usu+dni+fecha+clavepublica;
         MessageDigest sha256 = null;
 		try {
 			sha256 = MessageDigest.getInstance("SHA-256");
@@ -68,7 +66,7 @@ public class HomeController {
         String hashserv=Base64.getEncoder().encodeToString(sha256.digest()); //2bb80d5...527a25b
       
 	  
-		if(hash==null || !hash.equals(hashserv) ){
+		if(hashrec==null || !hashrec.equals(hashserv) ){
 			
 			respuestaServidor="401 UNAUTHORIZED";	
 			url="Autentication";//Nos vamos al jsp Autentication
