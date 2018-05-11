@@ -12,6 +12,7 @@ public class Usuario implements Serializable {
     private String fechaString;
     private String clavePublicaB64;
     private String hashB64;
+    private String claveSecreta;
     
     public Usuario(){
     	
@@ -20,6 +21,9 @@ public class Usuario implements Serializable {
     	nick=us;
     	dni=ni;
     }
+    public Usuario(String clave){
+    	this.claveSecreta=clave;
+    }
     
 	public Usuario(String nick, String dni, String fechaString, String clavePublicaB64, String hashB64) {
 		this.nick = nick;
@@ -27,6 +31,7 @@ public class Usuario implements Serializable {
 		this.fechaString = fechaString;
 		this.clavePublicaB64 = clavePublicaB64;
 		this.hashB64 = hashB64;
+		
 	}
 	public String getNick() {
 		return nick;
@@ -48,6 +53,13 @@ public class Usuario implements Serializable {
 	}
 	public String getClavePublicaB64() {
 		return clavePublicaB64;
+	}
+	
+	public String getClaveSecreta() {
+		return claveSecreta;
+	}
+	public void setClaveSecreta(String claveSecreta) {
+		this.claveSecreta = claveSecreta;
 	}
 	public void setClavePublicaB64(String clavePublicaB64) {
 		this.clavePublicaB64 = clavePublicaB64;

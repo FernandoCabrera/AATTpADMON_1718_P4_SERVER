@@ -17,6 +17,7 @@ public Usuario mapRow(ResultSet rs, int rowNum) throws SQLException{
 Usuario usuario = new Usuario();
 usuario.setNick(rs.getString("Usuario"));
 usuario.setDni(rs.getString("DNI"));
+usuario.setClaveSecreta(rs.getString("claveSecreta"));
 
 return usuario;
 }

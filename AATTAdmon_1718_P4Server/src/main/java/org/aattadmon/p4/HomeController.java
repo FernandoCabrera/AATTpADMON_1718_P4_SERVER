@@ -44,53 +44,51 @@ public class HomeController {
 	     String fecha=user.getFechaString();
 	     String clavepublica=user.getClavePublicaB64();
 	     //Pasar clave publica a String 
-	    // String clavepublicaString=Base64.getDecoder().decode(clavepublica.);
+	    String clavepublicaString=Base64.getDecoder().decode(clavepublica).toString();
+	     
 	     String hashrec=user.getHashB64();
-
-	    
-	    //Hacemos el hash
-	    String hashobtenido=usu+dni+fecha+clavepublica;
-        MessageDigest sha256 = null;
-		try {
-			sha256 = MessageDigest.getInstance("SHA-256");
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        try {
-			sha256.update(hashobtenido.getBytes("UTF-8"));
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        String hashserv=Base64.getEncoder().encodeToString(sha256.digest()); //2bb80d5...527a25b
-      
-	  
-		if(hashrec==null || !hashrec.equals(hashserv) ){
-			
-			respuestaServidor="401 UNAUTHORIZED";	
-			url="Autentication";//Nos vamos al jsp Autentication
-			model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-		}else{
-			
-			//Se ha enviado un usuario y un dni
-			//Comprobamos que este en BBDD
-			
-			if(dao.buscaUsuario(usu,dni) !=null ){
-
-	    	   	//si coincide usuario y password 
-	            //Muestro el jsp con la info de bddd
-	        	//Por tanto hay que recorrer la lista
-				respuestaServidor="200 OK";
-				model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-	        	url="Autentication";//Nos vamos al jsp Autentication
-	        			
-	 }else { 
+//Obtenemos la clave secreta de BBDD e funcion del nick y dni
+	     if(dao.buscaUsuario(usu,dni) !=null ){
+	    	 String clavesecreta=dao.obtenerclave(usu, dni);
+	    	 
+	    	 
+	    	//Hacemos el hash
+	 	    String hashobtenido=usu+dni+fecha+clavepublicaString+clavesecreta;
+	         MessageDigest sha256 = null;
+	 		try {
+	 			sha256 = MessageDigest.getInstance("SHA-256");
+	 		} catch (NoSuchAlgorithmException e) {
+	 			// TODO Auto-generated catch block
+	 			e.printStackTrace();
+	 		}
+	         try {
+	 			sha256.update(hashobtenido.getBytes("UTF-8"));
+	 		} catch (UnsupportedEncodingException e) {
+	 			// TODO Auto-generated catch block
+	 			e.printStackTrace();
+	 		}
+	         String hashserv=Base64.getEncoder().encodeToString(sha256.digest()); //2bb80d5...527a25b
+	         
+	         //Caso que el hash sea distinto
+	         if(hashrec==null || !hashrec.equals(hashserv) ){
+	 			
+	 			respuestaServidor="401 UNAUTHORIZED";	
+	 			url="Autentication";//Nos vamos al jsp Autentication
+	 			model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
+	 		}else
+	 	    	   	//si coincide hash
+	 	            //Muestro el jsp con la info de bddd
+	 	        	
+	 				respuestaServidor="200 OK";
+	 				model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
+	 	        	url="Autentication";//Nos vamos al jsp Autentication	 
+	     }
+	    else { 
 		 respuestaServidor="400 ERROR";
 		model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
     	url="Autentication";//
 	 }	
-		}	
+			
 	    	
 	      
 	
