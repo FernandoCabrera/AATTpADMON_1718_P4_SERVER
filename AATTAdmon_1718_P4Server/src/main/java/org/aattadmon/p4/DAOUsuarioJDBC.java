@@ -34,9 +34,9 @@ public class DAOUsuarioJDBC implements DAOUsuarioInterface {
 		String sql = "select claveSecreta from usuarios where Usuario = ? AND DNI=?";
 		Object[ ] parametros = {nick,dni}; //Array de objetos
 		Mapper mapper = new Mapper();
-		Usuario usuarios = (Usuario) this.jdbcTemplate.query(sql, parametros, mapper);
-		if (usuarios==null) return null;
-		else  return usuarios.getClaveSecreta();
+		List <Usuario> usuarios =  this.jdbcTemplate.query(sql, parametros, mapper);
+		if (usuarios.isEmpty()) return null;
+		else  return usuarios.get(0).getClaveSecreta();
 		
 	}
 	
@@ -69,20 +69,6 @@ public class DAOUsuarioJDBC implements DAOUsuarioInterface {
 		
 		}
 	
-	//Insertar usuarios
-	//Para operaciones INSERT, UPDATE o DELETE se usa el método jdbcTemplate.update
-	public void addUser(String name,String surname1,String surname2,String dni) {
-		
-		char name1=name.charAt(0);
-		char surname=surname2.charAt(0);
-		String us=name1+surname1+surname;
-		String sql="INSERT INTO usuarios (Usuario,Nombre,Apellido1,Apellido2,NIF)"
-				+ " VALUES ('"+us+"','"+name+"','"+surname1+"','"+surname2+"','"+dni+"');";
-		//Los valores a sustituir  se pasan como un array de objetos.
-		
-		Object[ ] parametros = {us,name,surname1,surname2,dni};
-		this.jdbcTemplate.update(sql, parametros);
-}
 
 
 

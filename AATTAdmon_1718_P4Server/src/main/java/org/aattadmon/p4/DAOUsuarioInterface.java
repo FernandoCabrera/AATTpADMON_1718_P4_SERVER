@@ -9,6 +9,5 @@ import org.aattadmon.p4.Usuario;
 public interface DAOUsuarioInterface {
 	public Usuario buscaUsuario(String user,String nif); 
 	public List<Usuario> muestraUser();
-	public void addUser(String name,String surname1,String surname2,String dni);
 	public String obtenerclave(String nick,String dni);
 }
