@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,19 +40,26 @@ public class HomeController {
 		
 
 		
-		 @RequestMapping(value="/autenticar{nick}{dni}{fechaString}{hashB64}", method = RequestMethod.GET)
-		    public @ResponseBody ResponseEntity Login(@PathVariable (value="nick")String nick,@PathVariable(value="dni")String dni, @PathVariable(value="fechaString")String fechaString,@PathVariable(value="hashB64")String hashB64,HttpServletRequest request,Model model) {
+		 @RequestMapping(value="/autenticar/{nick}/{dni}/{fechaString}/{hashB64}", method = RequestMethod.GET)
+		    public @ResponseBody String login (@PathVariable (value="nick")String nick,@PathVariable(value="dni")String dni, @PathVariable(value="fechaString")String fechaString,@PathVariable(value="hashB64")String hashB64,HttpServletRequest request,Model model) {
 		    String respuestaServidor=null;
 		    String response=null;
+		    //Respuesta servidor
+	        //ResponseEntity<Usuario> respuestaServidor;
+	        
+	        Base64.Decoder decoder = Base64.getDecoder();
+	        byte[] decodedByteArray = decoder.decode(nick);
+	 
+	        String nick1 = new String(decodedByteArray);
 		
 	     //Obtenemos la clave secreta de BBDD e funcion del nick y dni
-	     if(dao.buscaUsuario(nick,dni) !=null ){
-	    	 String clavesecreta=dao.obtenerclave(nick,dni);
+	     if(dao.buscaUsuario(nick1,dni) !=null ){
+	    	 String clavesecreta=dao.obtenerclave(nick1,dni);
 	    	 
 	    	//Falta clavepublica
 	    	 
 	    	//Hacemos el hash
-	 	    String hashobtenido=nick+dni+fechaString+clavesecreta;
+	 	    String hashobtenido=nick1+dni+fechaString+clavesecreta;
 	         MessageDigest sha256 = null;
 	 		try {
 	 			sha256 = MessageDigest.getInstance("SHA-256");
@@ -70,121 +76,38 @@ public class HomeController {
 	         String hashserv=Base64.getEncoder().encodeToString(sha256.digest()); //2bb80d5...527a25b
 	         
 	         //Caso que el hash sea distinto
-	         if(hashserv==null || !hashB64.equals(hashserv) ){
-	 			
-	 			respuestaServidor="401 UNAUTHORIZED";	
-	 			response="Usuario no tiene acceso";//Mensage
-	 			
-	 			model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-	 		}else
-	 	    	   	//si coincide hash
-	 	            //Muestro el jsp con la info de bddd
-	 	        	
-	 				respuestaServidor="200 OK";
-	 				model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-	 				response="Usuario autenticado con exito";//Mensage
-	 	        	 
-	     }
-	    else { 
-		 respuestaServidor="400 BAD REQUEST";
-		model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-    	
-    	response="Usuario y dni no registrados en BBDD ";//Mensage
-	 }	
-	    //logger.info(response+" Respuesta "+respuestaServidor); //Informamos del suceso.
-			
-	    	
-	      
-	     ResponseEntity<Usuario> resp=new ResponseEntity <Usuario>(HttpStatus.CREATED);
-
-		
-		return resp;
-			
-		
-		
-		
-    	
-	
-	
-}
-		
-	
-	/*
-		 @RequestMapping(value="/autenticar", method = {RequestMethod.POST,RequestMethod.GET})
-		    public ResponseEntity Login(@RequestBody Usuario user, HttpServletRequest request,Model model) {
-		    String respuestaServidor=null;
-		    String response=null;
-		 //URL 
-	     String url="";
-	     String usu=user.getNick();	
-	     String dni=user.getDni();
-	     String fecha=user.getFechaString();
-	     String clavepublica=user.getClavePublicaB64();
-	     //Pasar clave publica a String 
-	    String clavepublicaString=Base64.getDecoder().decode(clavepublica).toString();
+	       //Caso que el hash sea distinto
+	           if(hashB64==null || !hashB64.equals(hashserv) ){
+	            
+	         //Devuelvo respuestaHTTP
+	         respuestaServidor="401 UNAUTHORIZED";
+	        		 //new ResponseEntity <Usuario>(HttpStatus.UNAUTHORIZED);  
+	         
+	       }else
+	           //si coincide hash
+	         //Devuelvo respuestaHTTP
+	         respuestaServidor="200 OK";
+	         //new ResponseEntity <Usuario>(HttpStatus.OK);
+	                
+	       }
+	      else { 
+	        //Devuelvo respuestaHTTP
+	       respuestaServidor="400 BAD REQUEST";
+	    		   //new ResponseEntity <Usuario>(HttpStatus.BAD_REQUEST);
+	   }  
 	     
-	     String hashrec=user.getHashB64();
-	     //Obtenemos la clave secreta de BBDD e funcion del nick y dni
-	     if(dao.buscaUsuario(usu,dni) !=null ){
-	    	 String clavesecreta=dao.obtenerclave(usu,dni);
-	    	 
-	    	 
-	    	//Hacemos el hash
-	 	    String hashobtenido=usu+dni+fecha+clavepublicaString+clavesecreta;
-	         MessageDigest sha256 = null;
-	 		try {
-	 			sha256 = MessageDigest.getInstance("SHA-256");
-	 		} catch (NoSuchAlgorithmException e) {
-	 			// TODO Auto-generated catch block
-	 			e.printStackTrace();
-	 		}
-	         try {
-	 			sha256.update(hashobtenido.getBytes("UTF-8"));
-	 		} catch (UnsupportedEncodingException e) {
-	 			// TODO Auto-generated catch block
-	 			e.printStackTrace();
-	 		}
-	         String hashserv=Base64.getEncoder().encodeToString(sha256.digest()); //2bb80d5...527a25b
-	         
-	         //Caso que el hash sea distinto
-	         if(hashrec==null || !hashrec.equals(hashserv) ){
-	 			
-	 			respuestaServidor="401 UNAUTHORIZED";	
-	 			response="Usuario no tiene acceso";//Mensage
-	 			
-	 			model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-	 		}else
-	 	    	   	//si coincide hash
-	 	            //Muestro el jsp con la info de bddd
-	 	        	
-	 				respuestaServidor="200 OK";
-	 				model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-	 				response="Usuario autenticado con exito";//Mensage
-	 	        	 
-	     }
-	    else { 
-		 respuestaServidor="400 BAD REQUEST";
-		model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp
-    	
-    	response="Usuario y dni no registrados en BBDD ";//Mensage
-	 }	
-	    //logger.info(response+" Respuesta "+respuestaServidor); //Informamos del suceso.
-			
-	    	
-	      
-	     ResponseEntity<Usuario> resp=new ResponseEntity <Usuario>(user, HttpStatus.CREATED);
-
-		
-		return resp;
-			
-		
-		
-		
-    	
-	
-	
+	    return respuestaServidor;	
 }
-*/
+		 
+		@RequestMapping(value="/autenticar/{nick}", method = RequestMethod.GET)
+		    public @ResponseBody String Login(@PathVariable (value="nick")String nick, HttpServletRequest request,Model model) {
+		    //String respuestaServidor=null;
+		    String response=null;
+		  //Respuesta servidor
+		    return "200 OK";
+	     //Obtenemos la clave secreta de BBDD e funcion del nick y dni
+		}
+
 }
 	
 
