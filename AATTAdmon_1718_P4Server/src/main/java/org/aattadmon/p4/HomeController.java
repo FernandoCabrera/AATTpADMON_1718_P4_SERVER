@@ -115,19 +115,19 @@ public class HomeController {
 	    fechaString=request.getParameter("fechaString");
 	    hashB64=request.getParameter("hashB64");
 	    //Decodificamos nick->string
-	    Base64.Decoder decoder = Base64.getDecoder();
-        byte[] decodedByteArray = decoder.decode(nick);
+	  //  Base64.Decoder decoder = Base64.getDecoder();
+       // byte[] decodedByteArray = decoder.decode(nick);
  
-        String nick1 = new String(decodedByteArray);
+      //  String nick1 = new String(decodedByteArray);
 	
      //Obtenemos la clave secreta de BBDD e funcion del nick y dni
-     if(dao.buscaUsuario(nick1,dni) !=null ){
-    	 String clavesecreta=dao.obtenerclave(nick1,dni);
+     if(dao.buscaUsuario(nick,dni) !=null ){
+    	 String clavesecreta=dao.obtenerclave(nick,dni);
     	 
     	//Falta clavepublica
     	 
     	//Hacemos el hash
- 	    String hashobtenido=nick1+dni+fechaString+clavesecreta;
+ 	    String hashobtenido=nick+dni+fechaString+clavesecreta;
          MessageDigest sha256 = null;
  		try {
  			sha256 = MessageDigest.getInstance("SHA-256");
