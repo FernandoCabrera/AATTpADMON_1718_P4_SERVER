@@ -118,6 +118,7 @@ public class HomeController {
 	    String fechaString1=request.getParameter("fechaString");
 	    hashB64=request.getParameter("hashB64");
 	    System.out.println(hashB64);
+	    
 	    //Decodificamos nick->string
 	    Base64.Decoder decoder = Base64.getDecoder();
         byte[] decodedByteArray = decoder.decode(nick1);
@@ -125,6 +126,11 @@ public class HomeController {
         //Decodificamos fecha->string
         decodedByteArray = decoder.decode(fechaString1);
         fechaString = new String(decodedByteArray);
+
+	  //  Base64.Decoder decoder = Base64.getDecoder();
+       // byte[] decodedByteArray = decoder.decode(nick);
+ 
+      //  String nick1 = new String(decodedByteArray);
 	
      //Obtenemos la clave secreta de BBDD e funcion del nick y dni
      if(dao.buscaUsuario(nick,dni) !=null ){
