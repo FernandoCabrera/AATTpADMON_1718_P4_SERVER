@@ -40,7 +40,7 @@ public class HomeController {
 		
 		
 
-	/* METODO GET 	
+	// METODO GET 	
 		 @RequestMapping(value="/autenticar/{nick}/{dni}/{fechaString}/{hashB64}", method = RequestMethod.GET)
 		    public @ResponseBody String login (@PathVariable (value="nick")String nick,@PathVariable(value="dni")String dni, @PathVariable(value="fechaString")String fechaString,@PathVariable(value="hashB64")String hashB64,HttpServletRequest request,Model model) {
 		    String respuestaServidor=null;
@@ -52,6 +52,9 @@ public class HomeController {
 	        byte[] decodedByteArray = decoder.decode(nick);
 	 
 	        String nick1 = new String(decodedByteArray);
+	        
+	        decodedByteArray = decoder.decode(fechaString);
+	        String fechaString1 = new String(decodedByteArray);
 		
 	     //Obtenemos la clave secreta de BBDD e funcion del nick y dni
 	     if(dao.buscaUsuario(nick1,dni) !=null ){
@@ -60,7 +63,7 @@ public class HomeController {
 	    	//Falta clavepublica
 	    	 
 	    	//Hacemos el hash
-	 	    String hashobtenido=nick1+dni+fechaString+clavesecreta;
+	 	    String hashobtenido=nick1+dni+fechaString1+clavesecreta;
 	         MessageDigest sha256 = null;
 	 		try {
 	 			sha256 = MessageDigest.getInstance("SHA-256");
@@ -99,7 +102,7 @@ public class HomeController {
 	     
 	    return respuestaServidor;	
 }
-*/		
+		
 	
 	@RequestMapping(value = "/autenticar", method = {RequestMethod.POST,RequestMethod.GET})
 	public String login(HttpServletRequest request,Model model){
@@ -110,25 +113,28 @@ public class HomeController {
 		//Variables donde vamos a guardar los atributos introducidos en la url
 		String nick,dni,fechaString,hashB64;	
 		 
-	    nick = request.getParameter("nick");
+	    String nick1 = request.getParameter("nick");
 	    dni = request.getParameter("dni"); 
-	    fechaString=request.getParameter("fechaString");
+	    String fechaString1=request.getParameter("fechaString");
 	    hashB64=request.getParameter("hashB64");
+	    System.out.println(hashB64);
 	    //Decodificamos nick->string
 	    Base64.Decoder decoder = Base64.getDecoder();
-        byte[] decodedByteArray = decoder.decode(nick);
- 
-        String nick1 = new String(decodedByteArray);
+        byte[] decodedByteArray = decoder.decode(nick1);
+        nick = new String(decodedByteArray);
+        //Decodificamos fecha->string
+        decodedByteArray = decoder.decode(fechaString1);
+        fechaString = new String(decodedByteArray);
 	
      //Obtenemos la clave secreta de BBDD e funcion del nick y dni
-     if(dao.buscaUsuario(nick1,dni) !=null ){
-    	 String clavesecreta=dao.obtenerclave(nick1,dni);
+     if(dao.buscaUsuario(nick,dni) !=null ){
+    	 String clavesecreta=dao.obtenerclave(nick,dni);
     	 
     	//Falta clavepublica
     	 
     	//Hacemos el hash
- 	    String hashobtenido=nick1+dni+fechaString+clavesecreta;
-         MessageDigest sha256 = null;
+ 	    String hashobtenido=nick1+dni+fechaString1+clavesecreta;
+        MessageDigest sha256 = null;
  		try {
  			sha256 = MessageDigest.getInstance("SHA-256");
  		} catch (NoSuchAlgorithmException e) {
@@ -150,49 +156,26 @@ public class HomeController {
 			model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp.
 			
 			response="Error hash ";//Mensaje
-			url="Autentication";//Nos vamos al jsp Autentication		
+			url="autentication";//Nos vamos al jsp Autentication		
 		}else{
-			
-			
-
 	    	   	//si coincide usuario y password 
 	            //Muestro el jsp con la info de bddd
 	        	//Por tanto hay que recorrer la lista
 				respuestaServidor="200 OK";
 				model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp.
 				response="Autenticado con exito";//Mensage
-	        	url="Autentication";//Nos vamos al jsp Autentication
-	        			
-	 
-			
-		
-		}	
-			
+	        	url="autentication";//Nos vamos al jsp Autentication		
+		}			
      }  else{
 	        	//Caso que no coincidan 
-
 		respuestaServidor="400 BAD REQUEST"; //solicitud incorrecta
 		model.addAttribute("respuestaServidor",respuestaServidor); //Enviamos la respuesta al jsp.
 		response="Usuario no registrados en BBDD ";//Mensage
-    	url="Autentication";//Nos vamos al jsp Autentication
+    	url="autentication";//Nos vamos al jsp Autentication
 	       }
 	      
-			
-	
-
 	    //logger.info((response+" Respuesta "+respuestaServidor); //Informamos del suceso.
-		return url;
-			
-		
-		
-		
-    	
+		return url; 	
 	
 	}
-	
-
-
-
-	}
-	
-
+}

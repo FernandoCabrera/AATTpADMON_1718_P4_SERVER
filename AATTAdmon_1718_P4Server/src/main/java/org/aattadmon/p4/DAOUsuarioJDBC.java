@@ -31,7 +31,7 @@ public class DAOUsuarioJDBC implements DAOUsuarioInterface {
 	
 	//Obtener clave secreta
 	public String obtenerclave(String nick,String dni){
-		String sql = "select claveSecreta from usuarios where Usuario = ? AND DNI=?";
+		String sql = "select * from usuarios where Usuario = ? AND DNI=?";
 		Object[ ] parametros = {nick,dni}; //Array de objetos
 		Mapper mapper = new Mapper();
 		List <Usuario> usuarios =  this.jdbcTemplate.query(sql, parametros, mapper);
